@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+    provider             = "prisma-client-py"
+    recursive_type_depth = 5
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id            String      @id @default(cuid())
+    name          String?     @unique
+    email         String      @unique
+    password      String
+    firstName     String?
+    lastName      String?
+    image         String?
+    emailVerified DateTime?   @map("email_verified")
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+    Workspace     Workspace[]
+}
+
+model Workspace {
+    id        String    @id @default(cuid())
+    User      User      @relation(fields: [userId], references: [id])
+    userId    String
+    name      String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    Location  Devices[]
+    IAM       IAM[]
+}
+
+model IAM {
+    id          String    @id @default(cuid())
+    Workspace   Workspace @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+    password    String
+    tagname     String?
+    role        Role      @default(USER)
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Devices {
+    id          String     @id @default(cuid())
+    Workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+    workspaceId String
+    imei        String     @unique
+    name        String?
+    description String?
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
+    Position    Position[]
+}
+
+model Position {
+    id        String   @id @default(cuid())
+    Devices   Devices  @relation(fields: [deviceId], references: [id])
+    deviceId  String
+    latitude  Float
+    longitude Float
+    createdAt DateTime @default(now())
+}
