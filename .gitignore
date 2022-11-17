@@ -3,3 +3,4 @@ smarttracker/__pycache__/*
 *.pyc
 .pylintrc
 .env
+.idea
